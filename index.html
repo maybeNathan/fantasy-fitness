@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fantasy Fitness League</title>
+<style>
+  :root {
+    --bg: #0f1923;
+    --card: #1a2733;
+    --card-hover: #223344;
+    --accent: #00d4aa;
+    --accent2: #ff6b35;
+    --gold: #ffd700;
+    --text: #e8edf2;
+    --muted: #6b7b8d;
+    --danger: #ff4757;
+    --success: #2ed573;
+    --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1a2733 0%, #0f1923 100%);
+    border-bottom: 2px solid var(--accent);
+    padding: 16px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header h1 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+  .header h1 span { color: var(--accent); }
+  .week-badge {
+    background: var(--accent);
+    color: #000;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  /* Navigation Tabs */
+  .nav-tabs {
+    display: flex;
+    background: var(--card);
+    border-bottom: 1px solid #2a3a4a;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .nav-tabs button {
+    flex: 1;
+    min-width: 80px;
+    padding: 12px 16px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .nav-tabs button.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .nav-tabs button:hover:not(.active) {
+    color: var(--text);
+    background: rgba(255,255,255,0.03);
+  }
+
+  /* Content Area */
+  .content { padding: 16px; max-width: 600px; margin: 0 auto; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Cards */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+  }
+  .card-badge {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+  }
+  .badge-green { background: rgba(46,213,115,0.15); color: var(--success); }
+  .badge-gold { background: rgba(255,215,0,0.15); color: var(--gold); }
+  .badge-orange { background: rgba(255,107,53,0.15); color: var(--accent2); }
+
+  /* Points Display */
+  .points-hero {
+    text-align: center;
+    padding: 24px 16px;
+  }
+  .points-total {
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .points-label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .points-bar {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    justify-content: center;
+  }
+  .stat-pill {
+    background: rgba(255,255,255,0.05);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .stat-pill .icon { font-size: 1rem; }
+
+  /* Progress Bars */
+  .goal-row {
+    margin-bottom: 16px;
+  }
+  .goal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .goal-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .goal-value {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .goal-value strong {
+    color: var(--accent);
+  }
+  .progress-track {
+    height: 8px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+    position: relative;
+  }
+  .progress-fill.green { background: linear-gradient(90deg, #2ed573, var(--accent)); }
+  .progress-fill.orange { background: linear-gradient(90deg, #ff6b35, #ffa502); }
+  .progress-fill.gold { background: linear-gradient(90deg, #ffd700, #ffed4a); }
+  .progress-fill.red { background: linear-gradient(90deg, #ff4757, #ff6b81); }
+
+  .goal-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  /* Draft / Goal Selection */
+  .draft-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .draft-card {
+    background: rgba(255,255,255,0.03);
+    border: 2px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius);
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    position: relative;
+  }
+  .draft-card:hover {
+    border-color: var(--accent);
+    background: rgba(0,212,170,0.05);
+  }
+  .draft-card.selected {
+    border-color: var(--accent);
+    background: rgba(0,212,170,0.1);
+    box-shadow: 0 0 20px rgba(0,212,170,0.15);
+  }
+  .draft-card .icon { font-size: 2rem; margin-bottom: 6px; }
+  .draft-card .name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .draft-card .detail {
+    font-size: 0.65rem;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+  .draft-card .target {
+    margin-top: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .draft-card .check {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 900;
+  }
+  .draft-card.selected .check { display: flex; }
+
+  /* Standings Table */
+  .standings-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .standings-table th {
+    text-align: left;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 8px 4px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .standings-table td {
+    padding: 10px 4px;
+    font-size: 0.85rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .standings-table tr.highlight {
+    background: rgba(0,212,170,0.08);
+    border-radius: 8px;
+  }
+  .rank-num {
+    font-weight: 900;
+    font-size: 0.9rem;
+    width: 24px;
+    display: inline-block;
+    text-align: center;
+  }
+  .rank-1 { color: var(--gold); }
+  .rank-2 { color: #c0c0c0; }
+  .rank-3 { color: #cd7f32; }
+  .team-name {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .team-pts {
+    text-align: right;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .team-change {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 6px;
+  }
+  .change-up { background: rgba(46,213,115,0.15); color: var(--success); }
+  .change-down { background: rgba(255,71,87,0.15); color: var(--danger); }
+  .change-same { color: var(--muted); }
+
+  /* Scoring Breakdown */
+  .scoring-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .scoring-row:last-child { border-bottom: none; }
+  .scoring-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+  }
+  .scoring-points {
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+    width: 100%;
+    text-align: center;
+  }
+  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn-primary:disabled {
+    background: rgba(255,255,255,0.1);
+    color: var(--muted);
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-sm {
+    padding: 8px 16px;
+    font-size: 0.75rem;
+  }
+  .btn-outline {
+    background: none;
+    border: 2px solid var(--accent);
+    color: var(--accent);
+  }
+  .btn-danger {
+    background: rgba(255,71,87,0.15);
+    color: var(--danger);
+    border: none;
+  }
+
+  /* Input Fields */
+  .input-group {
+    margin-bottom: 12px;
+  }
+  .input-group label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .input-group input, .input-group select {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-group input:focus, .input-group select:focus {
+    border-color: var(--accent);
+  }
+
+  /* Log Entry */
+  .log-entry {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .log-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .log-info { flex: 1; }
+  .log-title { font-size: 0.85rem; font-weight: 600; }
+  .log-detail { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+  .log-pts {
+    font-weight: 800;
+    color: var(--accent);
+    font-size: 0.9rem;
+  }
+
+  /* Streak */
+  .streak-display {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    margin: 12px 0;
+  }
+  .streak-day {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 700;
+  }
+  .streak-done { background: var(--accent); color: #000; }
+  .streak-pending { background: rgba(255,255,255,0.06); color: var(--muted); }
+  .streak-missed { background: rgba(255,71,87,0.2); color: var(--danger); }
+
+  /* Section Divider */
+  .section-title {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin: 20px 0 10px 0;
+    padding-left: 4px;
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+  .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+  .empty-state p { font-size: 0.85rem; margin-bottom: 16px; }
+
+  /* Quick Add Button */
+  .fab {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    font-size: 1.5rem;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,212,170,0.3);
+    z-index: 50;
+    transition: transform 0.2s;
+  }
+  .fab:hover { transform: scale(1.1); }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: var(--card);
+    border-radius: 20px 20px 0 0;
+    padding: 24px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  .modal-handle {
+    width: 40px;
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+
+  /* Animations */
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .animate-in { animation: slideUp 0.3s ease; }
+
+  /* Responsive */
+  @media (min-width: 768px) {
+    .content { padding: 24px; }
+    .draft-grid { grid-template-columns: 1fr 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⚡ Fantasy <span>Fitness</span></h1>
+  <div class="week-badge" id="weekBadge">Week 1</div>
+</div>
+
+<nav class="nav-tabs" id="navTabs">
+  <button class="active" data-tab="dashboard">Dashboard</button>
+  <button data-tab="draft">Draft Goals</button>
+  <button data-tab="standings">Standings</button>
+  <button data-tab="log">Activity</button>
+  <button data-tab="scoring">Scoring</button>
+</nav>
+
+<div class="content">
+
+  <!-- DASHBOARD -->
+  <div class="tab-panel active" id="tab-dashboard">
+    <div class="card animate-in">
+      <div class="points-hero">
+        <div class="points-label">Weekly Score</div>
+        <div class="points-total" id="totalPoints">0</div>
+        <div class="points-bar">
+          <div class="stat-pill"><span class="icon">🔥</span> <span id="streakCount">0</span> streak</div>
+          <div class="stat-pill"><span class="icon">✅</span> <span id="goalsComplete">0</span>/<span id="goalsTotal">0</span> goals</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">This Week's Goals</div>
+    <div id="dashboardGoals">
+      <div class="empty-state">
+        <div class="icon">🏋️</div>
+        <p>No goals drafted yet. Head to the draft to pick your weekly goals!</p>
+        <button class="btn btn-primary btn-sm" onclick="switchTab('draft')">Go to Draft</button>
+      </div>
+    </div>
+
+    <div class="section-title">Weekly Streak</div>
+    <div class="streak-display" id="streakDisplay"></div>
+  </div>
+
+  <!-- DRAFT -->
+  <div class="tab-panel" id="tab-draft">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Draft Your Weekly Goals</div>
+        <div class="card-badge badge-gold" id="draftCount">0/8 selected</div>
+      </div>
+      <p style="font-size:0.75rem;color:var(--muted);margin-bottom:12px;">
+        Pick up to 8 goals for this week. Each goal earns points when completed. Higher targets = more points!
+      </p>
+      <div class="draft-grid" id="draftGrid"></div>
+    </div>
+    <div style="margin-top:16px">
+      <button class="btn btn-primary" id="confirmDraftBtn" disabled onclick="confirmDraft()">
+        Confirm Draft
+      </button>
+    </div>
+  </div>
+
+  <!-- STANDINGS -->
+  <div class="tab-panel" id="tab-standings">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">League Standings</div>
+        <div class="card-badge badge-green">Week 1</div>
+      </div>
+      <table class="standings-table" id="standingsTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Team</th>
+            <th style="text-align:right">Pts</th>
+          </tr>
+        </thead>
+        <tbody id="standingsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ACTIVITY LOG -->
+  <div class="tab-panel" id="tab-log">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Activity Log</div>
+      </div>
+      <div id="activityLog">
+        <div class="empty-state">
+          <div class="icon">📝</div>
+          <p>No activity yet. Complete goals to see your log!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCORING -->
+  <div class="tab-panel" id="tab-scoring">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">How Scoring Works</div>
+      </div>
+      <div id="scoringBreakdown"></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Goal Point Values</div>
+      </div>
+      <div id="goalPoints"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Quick Add FAB -->
+<button class="fab" id="fabBtn" onclick="quickAdd()">+</button>
+
+<!-- Quick Add Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div style="font-size:1.1rem;font-weight:800;margin-bottom:16px;">Log Workout</div>
+    <div class="input-group">
+      <label>Activity</label>
+      <select id="logType">
+        <option value="run">🏃 Run</option>
+        <option value="walk">🚶 Walk</option>
+        <option value="gym">🏋️ Gym / Weights</option>
+        <option value="yoga">🧘 Yoga / Stretch</option>
+        <option value="swim">🏊 Swim</option>
+        <option value="cycle">🚴 Cycling</option>
+        <option value="hiit">⚡ HIIT</option>
+        <option value="sport">⚽ Sport</option>
+        <option value="steps">👟 Steps</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label>Duration / Distance</label>
+      <input type="text" id="logValue" placeholder="e.g., 5 km or 30 min or 8000 steps">
+    </div>
+    <div class="input-group">
+      <label>Feeling</label>
+      <select id="logFeeling">
+        <option value="3">🔥 Crushed it</option>
+        <option value="2" selected>💪 Solid</option>
+        <option value="1">😐 Okay</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" onclick="submitLog()">Log Activity</button>
+    <button class="btn btn-outline btn-sm" style="width:100%;margin-top:8px;" onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+
+<script>
+// ─── STATE ─────────────────────────────────────────────────
+const STORAGE_KEY = 'fantasy-fitness-v1';
+
+const GOAL_TEMPLATES = [
+  { id: 'steps', icon: '👟', name: 'Daily Steps', detail: '10,000+ steps/day', basePoints: 10, target: '10000', unit: 'steps' },
+  { id: 'run', icon: '🏃', name: 'Run', detail: '3 runs, 5km each', basePoints: 15, target: '3', unit: 'runs' },
+  { id: 'gym', icon: '🏋️', name: 'Gym', detail: '4 strength sessions', basePoints: 15, target: '4', unit: 'sessions' },
+  { id: 'yoga', icon: '🧘', name: 'Yoga / Mobility', detail: '3 flexibility sessions', basePoints: 8, target: '3', unit: 'sessions' },
+  { id: 'swim', icon: '🏊', name: 'Swim', detail: '2 swimming sessions', basePoints: 12, target: '2', unit: 'sessions' },
+  { id: 'cycle', icon: '🚴', name: 'Cycling', detail: '2 rides, 20km+', basePoints: 12, target: '2', unit: 'sessions' },
+  { id: 'hiit', icon: '⚡', name: 'HIIT', detail: '2 cardio sessions', basePoints: 10, target: '2', unit: 'sessions' },
+  { id: 'sleep', icon: '😴', name: 'Sleep', detail: '7 nights, 7+ hours', basePoints: 12, target: '7', unit: 'nights' },
+  { id: 'water', icon: '💧', name: 'Hydration', detail: '8 glasses/day', basePoints: 6, target: '8', unit: 'glasses' },
+  { id: 'protein', icon: '🥩', name: 'Protein Target', detail: 'Hit protein daily', basePoints: 8, target: '7', unit: 'days' },
+  { id: 'no_sugar', icon: '🚫', name: 'No Sugar', detail: '7 days clean', basePoints: 10, target: '7', unit: 'days' },
+  { id: 'sport', icon: '⚽', name: 'Team Sport', detail: '1 game or match', basePoints: 10, target: '1', unit: 'games' },
+];
+
+const LEAGUE = [
+  { name: 'You', emoji: '💪', isUser: true },
+  { name: 'Iron Mike', emoji: '🦍' },
+  { name: 'Cardio Queen', emoji: '👑' },
+  { name: 'Yoga Fred', emoji: '🧘' },
+  { name: 'Run Dave', emoji: '🏃' },
+  { name: 'Gym Rat', emoji: '🐀' },
+  { name: 'CrossFit Carla', emoji: '🔥' },
+  { name: 'Swim Sam', emoji: '🏊' },
+];
+
+const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+let state = loadState();
+
+function defaultState() {
+  return {
+    week: 1,
+    selectedGoals: [], // goal template IDs
+    goalTargets: {},   // { 'run': 3, 'gym': 4 }
+    goalCompletions: {}, // { 'run': 2, 'gym': 1 }
+    logs: [],
+    points: 0,
+    streak: 0,
+    completedDays: [], // '2024-01-15' format
+  };
+}
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (s && s.week) return s;
+  } catch(e) {}
+  return defaultState();
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+// ─── INIT ──────────────────────────────────────────────────
+function init() {
+  // Check if new week
+  const today = getWeekNumber(new Date());
+  if (state.week !== today) {
+    state.week = today;
+    state.goalCompletions = {};
+    state.completedDays = [];
+    state.logs = [];
+    state.points = 0;
+    saveState();
+  }
+
+  renderDraftGrid();
+  renderDashboard();
+  renderStandings();
+  renderScoring();
+  renderActivityLog();
+  renderStreak();
+  setupTabs();
+}
+
+function getWeekNumber(d) {
+  const start = new Date(d.getFullYear(), 0, 1);
+  const days = Math.floor((d - start) / (24 * 60 * 60 * 1000));
+  return Math.ceil((days + start.getDay() + 1) / 7);
+}
+
+// ─── TABS ──────────────────────────────────────────────────
+function setupTabs() {
+  document.querySelectorAll('.nav-tabs button').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+}
+
+function switchTab(tabName) {
+  document.querySelectorAll('.nav-tabs button').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.nav-tabs button[data-tab="${tabName}"]`).classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tabName).classList.add('active');
+}
+
+// ─── DRAFT ─────────────────────────────────────────────────
+function renderDraftGrid() {
+  const grid = document.getElementById('draftGrid');
+  grid.innerHTML = '';
+  GOAL_TEMPLATES.forEach(template => {
+    const isSelected = state.selectedGoals.includes(template.id);
+    const card = document.createElement('div');
+    card.className = 'draft-card' + (isSelected ? ' selected' : '');
+    card.innerHTML = `
+      <div class="check">✓</div>
+      <div class="icon">${template.icon}</div>
+      <div class="name">${template.name}</div>
+      <div class="detail">${template.detail}</div>
+      <div class="target">${template.target} ${template.unit}</div>
+    `;
+    card.addEventListener('click', () => toggleGoal(template.id));
+    grid.appendChild(card);
+  });
+  updateDraftCount();
+}
+
+function toggleGoal(goalId) {
+  const idx = state.selectedGoals.indexOf(goalId);
+  if (idx >= 0) {
+    state.selectedGoals.splice(idx, 1);
+    delete state.goalTargets[goalId];
+    delete state.goalCompletions[goalId];
+  } else if (state.selectedGoals.length < 8) {
+    const template = GOAL_TEMPLATES.find(t => t.id === goalId);
+    state.selectedGoals.push(goalId);
+    state.goalTargets[goalId] = parseInt(template.target);
+    state.goalCompletions[goalId] = 0;
+  }
+  saveState();
+  renderDraftGrid();
+  renderDashboard();
+}
+
+function updateDraftCount() {
+  const count = state.selectedGoals.length;
+  document.getElementById('draftCount').textContent = `${count}/8 selected`;
+  document.getElementById('confirmDraftBtn').disabled = count === 0;
+}
+
+function confirmDraft() {
+  saveState();
+  switchTab('dashboard');
+  renderDashboard();
+}
+
+// ─── DASHBOARD ─────────────────────────────────────────────
+function renderDashboard() {
+  const goalsDiv = document.getElementById('dashboardGoals');
+  if (state.selectedGoals.length === 0) {
+    goalsDiv.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">🏋️</div>
+        <p>No goals drafted yet. Head to the draft to pick your weekly goals!</p>
+        <button class="btn btn-primary btn-sm" onclick="switchTab('draft')">Go to Draft</button>
+      </div>`;
+    document.getElementById('totalPoints').textContent = '0';
+    document.getElementById('streakCount').textContent = '0';
+    document.getElementById('goalsComplete').textContent = '0';
+    document.getElementById('goalsTotal').textContent = '0';
+    return;
+  }
+
+  let totalPoints = 0;
+  let completed = 0;
+
+  let html = '';
+  state.selectedGoals.forEach(goalId => {
+    const template = GOAL_TEMPLATES.find(t => t.id === goalId);
+    const target = state.goalTargets[goalId] || template.target;
+    const completed = state.goalCompletions[goalId] || 0;
+    const pct = Math.min(100, Math.round((completed / target) * 100));
+    const pts = calculateGoalPoints(template, completed, target);
+    totalPoints += pts;
+    if (pct >= 100) completed++;
+
+    const colorClass = pct >= 100 ? 'green' : pct >= 60 ? 'orange' : pct >= 30 ? 'gold' : 'red';
+
+    html += `
+      <div class="goal-row">
+        <div class="goal-header">
+          <div class="goal-name">${template.icon} ${template.name}</div>
+          <div class="goal-value"><strong>${completed}</strong> / ${target} ${template.unit}</div>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill ${colorClass}" style="width:${pct}%"></div>
+        </div>
+        <div class="goal-meta">
+          <span>${pct}% complete</span>
+          <span>+${pts} pts</span>
+        </div>
+      </div>
+    `;
+  });
+
+  goalsDiv.innerHTML = html;
+  document.getElementById('totalPoints').textContent = totalPoints;
+  document.getElementById('goalsComplete').textContent = completed;
+  document.getElementById('goalsTotal').textContent = state.selectedGoals.length;
+
+  // Update points in state
+  state.points = totalPoints;
+  saveState();
+}
+
+// ─── SCORING ───────────────────────────────────────────────
+function calculateGoalPoints(template, completed, target) {
+  const pct = Math.min(100, (completed / target) * 100);
+  // Points scale: 0-50% = base * pct/100 * 0.5, 50-100% = base * (0.25 + (pct-50)/50*0.75), 100%+ = base * 1.3
+  let pts;
+  if (pct <= 50) {
+    pts = template.basePoints * (pct / 100) * 0.5;
+  } else if (pct <= 100) {
+    pts = template.basePoints * (0.25 + ((pct - 50) / 50) * 0.75);
+  } else {
+    pts = template.basePoints * 1.3;
+  }
+  return Math.round(pts);
+}
+
+function renderScoring() {
+  const breakdown = document.getElementById('scoringBreakdown');
+  const goalPoints = document.getElementById('goalPoints');
+
+  let bHtml = `
+    <div class="scoring-row">
+      <div class="scoring-label">🎯 Goal Completion</div>
+      <div class="scoring-points">Scaled % of target</div>
+    </div>
+    <div class="scoring-row">
+      <div class="scoring-label">🔥 Streak Bonus</div>
+      <div class="scoring-points">+10% per day</div>
+    </div>
+    <div class="scoring-row">
+      <div class="scoring-label">⭐ Overachievement</div>
+      <div class="scoring-points">1.3x at 100%+</div>
+    </div>
+    <div class="scoring-row">
+      <div class="scoring-label">💪 Effort Multiplier</div>
+      <div class="scoring-points">1.5x "crushed it"</div>
+    </div>
+  `;
+  breakdown.innerHTML = bHtml;
+
+  let gHtml = '';
+  GOAL_TEMPLATES.forEach(t => {
+    gHtml += `
+      <div class="scoring-row">
+        <div class="scoring-label">${t.icon} ${t.name}</div>
+        <div class="scoring-points">${t.basePoints} pts</div>
+      </div>
+    `;
+  });
+  goalPoints.innerHTML = gHtml;
+}
+
+// ─── STANDINGS ─────────────────────────────────────────────
+function renderStandings() {
+  const tbody = document.getElementById('standingsBody');
+  // Generate some fake league data
+  const fakeData = LEAGUE.map(team => {
+    const pts = team.isUser ? state.points : Math.floor(Math.random() * 200) + 100;
+    const change = team.isUser ? (Math.random() > 0.5 ? 1 : -1) : 0;
+    return { ...team, points: pts, change };
+  });
+  fakeData.sort((a, b) => b.points - a.points);
+
+  let html = '';
+  fakeData.forEach((team, i) => {
+    const rankClass = i < 3 ? `rank-${i+1}` : '';
+    const highlight = team.isUser ? 'highlight' : '';
+    let changeHtml = '';
+    if (team.change > 0) changeHtml = `<span class="team-change change-up">▲${team.change}</span>`;
+    else if (team.change < 0) changeHtml = `<span class="team-change change-down">▼${Math.abs(team.change)}</span>`;
+    else changeHtml = `<span class="team-change change-same">—</span>`;
+
+    html += `
+      <tr class="${highlight}">
+        <td><span class="rank-num ${rankClass}">${i+1}</span></td>
+        <td><div class="team-name">${team.emoji} ${team.name} ${changeHtml}</div></td>
+        <td class="team-pts">${team.points}</td>
+      </tr>
+    `;
+  });
+  tbody.innerHTML = html;
+}
+
+// ─── STREAK ────────────────────────────────────────────────
+function renderStreak() {
+  const container = document.getElementById('streakDisplay');
+  const today = new Date();
+  const dayOfWeek = (today.getDay() + 6) % 7; // Mon=0
+
+  let html = '';
+  for (let i = 0; i < 7; i++) {
+    const isToday = i === dayOfWeek;
+    const dayDate = new Date(today);
+    dayDate.setDate(today.getDate() - dayOfWeek + i);
+    const dateStr = dayDate.toISOString().split('T')[0];
+    const isDone = state.completedDays.includes(dateStr);
+    const cls = isDone ? 'streak-done' : isToday ? 'streak-pending' : 'streak-pending';
+    html += `<div class="streak-day ${cls}">${DAY_LABELS[i]}</div>`;
+  }
+  container.innerHTML = html;
+}
+
+// ─── ACTIVITY LOG ──────────────────────────────────────────
+function renderActivityLog() {
+  const container = document.getElementById('activityLog');
+  if (state.logs.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">📝</div>
+        <p>No activity yet. Complete goals to see your log!</p>
+      </div>`;
+    return;
+  }
+
+  let html = '';
+  state.logs.slice().reverse().forEach(log => {
+    const typeMap = {
+      run: '🏃', walk: '🚶', gym: '🏋️', yoga: '🧘',
+      swim: '🏊', cycle: '🚴', hiit: '⚡', sport: '⚽', steps: '👟'
+    };
+    const feelingMap = { 3: '🔥', 2: '💪', 1: '😐' };
+    const pts = calculateActivityPoints(log);
+
+    html += `
+      <div class="log-entry">
+        <div class="log-icon" style="background:rgba(0,212,170,0.1)">${typeMap[log.type] || '💪'}</div>
+        <div class="log-info">
+          <div class="log-title">${capitalize(log.type)} — ${log.value}</div>
+          <div class="log-detail">${new Date(log.date).toLocaleDateString()} · ${feelingMap[log.feeling] || '💪'}</div>
+        </div>
+        <div class="log-pts">+${pts}</div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+}
+
+function calculateActivityPoints(log) {
+  const base = 5;
+  const effort = parseInt(log.feeling) || 1;
+  const effortMult = effort === 3 ? 1.5 : effort === 2 ? 1 : 0.5;
+  return Math.round(base * effortMult);
+}
+
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+// ─── QUICK ADD ─────────────────────────────────────────────
+function quickAdd() {
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modalOverlay')) {
+    document.getElementById('modalOverlay').classList.remove('active');
+  }
+}
+
+function submitLog() {
+  const type = document.getElementById('logType').value;
+  const value = document.getElementById('logValue').value;
+  const feeling = document.getElementById('logFeeling').value;
+
+  if (!value.trim()) return;
+
+  state.logs.push({
+    type,
+    value: value.trim(),
+    feeling: parseInt(feeling),
+    date: new Date().toISOString()
+  });
+
+  // Update goal completions
+  const goalId = type;
+  if (state.selectedGoals.includes(goalId)) {
+    state.goalCompletions[goalId] = (state.goalCompletions[goalId] || 0) + 1;
+  }
+
+  // Update streak
+  const today = new Date().toISOString().split('T')[0];
+  if (!state.completedDays.includes(today)) {
+    state.completedDays.push(today);
+  }
+
+  saveState();
+  document.getElementById('logValue').value = '';
+  closeModal();
+  renderDashboard();
+  renderActivityLog();
+  renderStreak();
+  renderStandings();
+}
+
+// ─── BOOT ──────────────────────────────────────────────────
+init();
+</script>
+
+</body>
+</html>
